@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Scroll Cards</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --accent: #08559F;
+            --text-header: #01101D;
+            --text-body: #666666;
+            --border: #C2C2C2;
+            --shadow: 0px 3px 20px 0px #0000001A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .section-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .section-2 {
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 80px;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                padding: 60px 60px;
+            }
+
+            .cards-container {
+                width: calc(100% + 120px);
+                max-width: calc(100vw - 40px);
+                margin-left: -60px;
+                margin-right: -60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 24px;
+            }
+
+            .cards-container {
+                width: calc(100% + 48px);
+                max-width: 100vw;
+                margin-left: -24px;
+                margin-right: -24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 16px;
+            }
+
+            .cards-container {
+                width: calc(100% + 32px);
+                max-width: 100vw;
+                margin-left: -16px;
+                margin-right: -16px;
+            }
+        }
+
+        .cards-container {
+            width: calc(100% + 160px);
+            max-width: calc(1400px + 160px);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            margin-left: -80px;
+            margin-right: -80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+
+        .card {
+            position: absolute;
+            width: 90%;
+            /* max-width: 1200px; */
+            height: 70vh;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            /* margin: 20px; */
+            background: white;
+            overflow: hidden;
+        }
+
+        .card-content {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .card-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: var(--text-header);
+        }
+
+        .card-heading {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: var(--text-header);
+        }
+
+        .card-description {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: var(--text-body);
+            max-width: 500px;
+        }
+
+        .card-media {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-media img,
+        .card-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .heading {
+            font-family: General Sans, sans-serif;
+            font-weight: 600;
+            font-size: 60px;
+            line-height: 70px;
+            letter-spacing: 0%;
+            display: block;
+        }
+
+        .heading-dark,
+        .heading-blue {
+            display: block;
+        }
+
+        .heading-dark {
+            color: var(--text-header);
+        }
+
+        .heading-blue {
+            color: var(--accent);
+        }
+
+        .card-1 {
+            z-index: 3;
+        }
+
+        .card-2 {
+            z-index: 2;
+        }
+
+        .card-3 {
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .heading {
+                font-size: 36px;
+                line-height: 44px;
+            }
+
+            .card {
+                width: 95%;
+                height: auto;
+                min-height: 60vh;
+            }
+
+            .card-content {
+                flex-direction: column;
+                padding: 30px 20px;
+                gap: 30px;
+            }
+
+            .card-heading {
+                font-size: 1.75rem;
+            }
+
+            .card-description {
+                font-size: 1rem;
+            }
+
+            .card-media {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .heading {
+                font-size: 28px;
+                line-height: 36px;
+            }
+        }
+
+        .section-3 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .spacer {
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="section section-1">
+        <div>Section 1</div>
+    </div>
+
+    <div class="section-2 container">
+        <h1 class="heading">
+            <span class="heading-dark">Simplify</span>
+            <span class="heading-blue">Medication Administration</span>
+            <span class="heading-dark">With A DosePack</span>
+        </h1>
+        <div class="cards-container">
+            <div class="card card-1">
+                <div class="card-content">
+                    <div class="card-text">
+                        <h2 class="card-heading">Scannable QR Codes On Every Dose Cup</h2>
+                        <p class="card-description">Verify doses and automate eMAR simply by scanning the QR code during
+                            drug administration.</p>
+                    </div>
+                    <div class="card-media">
+                        <img src="assets/Desktop/USP-scannable-QR-code.png" alt="Scannable QR Codes">
+                    </div>
+                </div>
+            </div>
+            <div class="card card-2">
+                <div class="card-content">
+                    <div class="card-text">
+                        <h2 class="card-heading">Choose from 26+ Customizable Configurations</h2>
+                        <p class="card-description">Tailor-made compliance packs according to weekly, biweekly, or
+                            monthly dose cycles.</p>
+                    </div>
+                    <div class="card-media">
+                        <img src="assets/Desktop/USP Section- 26+ customizable configurations.png"
+                            alt="26+ Customizable Configurations">
+                    </div>
+                </div>
+            </div>
+            <div class="card card-3">
+                <div class="card-content">
+                    <div class="card-text">
+                        <h2 class="card-heading">Tearable Dose Cups For Convenience</h2>
+                        <p class="card-description">Travel-friendly tearaway dose cups for medication intake at the
+                            prescribed time.</p>
+                    </div>
+                    <div class="card-media">
+                        <video autoplay loop muted playsinline>
+                            <source src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+    </div>
+
+    <div class="section section-3">
+        <div>Section 3</div>
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        const cards = gsap.utils.toArray('.card');
+
+        cards.forEach((card, index) => {
+            gsap.to(card, {
+                scrollTrigger: {
+                    trigger: '.section-2',
+                    start: `top+=${index * window.innerHeight} top`,
+                    end: `top+=${(index + 1) * window.innerHeight} top`,
+                    scrub: true,
+                    pin: false,
+                },
+                scale: 0.9 - (index * 0.05),
+                opacity: 0,
+                y: -100,
+                ease: 'none'
+            });
+        });
+
+
+        ScrollTrigger.create({
+            trigger: '.cards-container',
+            start: 'top top',
+            end: `+=${window.innerHeight * 2}`,
+            pin: true,
+            pinSpacing: false
+        });
+    </script>
+</body>
+
+</html>
