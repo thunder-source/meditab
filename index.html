@@ -129,7 +129,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
             overflow: hidden;
         }
 
@@ -138,7 +137,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 12px;
         }
 
         .heading {
@@ -219,6 +217,7 @@
                 flex: 5;
                 height: 100%;
                 width: 100%;
+                align-items: unset;
             }
         }
 
@@ -290,7 +289,10 @@
                             drug administration.</p>
                     </div>
                     <div class="card-media">
-                        <img src="assets/Desktop/USP-scannable-QR-code.png" alt="Scannable QR Codes">
+                        <picture>
+                            <source media="(max-width: 768px)" srcset="assets/Mobile/USP-scannable-QR-code.png">
+                            <img src="assets/Desktop/USP-scannable-QR-code.png" alt="Scannable QR Codes">
+                        </picture>
                     </div>
                 </div>
             </div>
@@ -302,8 +304,12 @@
                             monthly dose cycles.</p>
                     </div>
                     <div class="card-media">
-                        <img src="assets/Desktop/USP Section- 26+ customizable configurations.png"
-                            alt="26+ Customizable Configurations">
+                        <picture>
+                            <source media="(max-width: 768px)"
+                                srcset="assets/Mobile/USP-Section-26+customizable-configurations.png">
+                            <img src="assets/Desktop/USP-Section-26+customizable-configurations.png"
+                                alt="26+ Customizable Configurations">
+                        </picture>
                     </div>
                 </div>
             </div>
@@ -315,8 +321,8 @@
                             prescribed time.</p>
                     </div>
                     <div class="card-media">
-                        <video loop muted playsinline cover>
-                            <source src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
+                        <video loop muted playsinline>
+                            <source id="video-source" src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
                         </video>
                     </div>
                 </div>
@@ -334,6 +340,34 @@
         document.addEventListener('DOMContentLoaded', () => {
             const cards = gsap.utils.toArray('.card');
             const video = document.querySelector('.card-3 video');
+            const videoSource = document.querySelector('#video-source');
+
+            // Function to update video source based on screen size
+            function updateVideoSource() {
+                if (videoSource && video) {
+                    const isMobile = window.innerWidth <= 768;
+                    const newSource = isMobile
+                        ? 'assets/Mobile/USP Section- tearable Dose Cups.mp4'
+                        : 'assets/Desktop/USP-tearable-pkg.mp4';
+
+                    // Check if source needs to be updated
+                    const currentSrc = videoSource.getAttribute('src');
+                    if (currentSrc !== newSource) {
+                        const wasPlaying = !video.paused;
+                        const currentTime = video.currentTime;
+                        videoSource.setAttribute('src', newSource);
+                        video.load();
+                        if (wasPlaying) {
+                            video.currentTime = currentTime;
+                            video.play().catch(err => console.log('Video play failed:', err));
+                        }
+                    }
+                }
+            }
+
+            // Update video source on load and resize
+            updateVideoSource();
+            window.addEventListener('resize', updateVideoSource);
 
             const tl = gsap.timeline({
                 scrollTrigger: {
