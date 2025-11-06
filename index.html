@@ -73,6 +73,7 @@
         .card {
             position: absolute;
             width: 100%;
+            max-width: 100%;
             height: 100%;
             max-height: 600px;
             border-radius: 20px;
@@ -85,6 +86,9 @@
             border: 1px solid var(--border);
             background: var(--card-bg-light);
             overflow: hidden;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .card-content {
@@ -366,8 +370,26 @@
             }
 
             // Update video source on load and resize
-            updateVideoSource();
-            window.addEventListener('resize', updateVideoSource);
+            window.addEventListener('resize', () => {
+                updateVideoSource();
+                ScrollTrigger.refresh();
+
+                // Reset card positions
+                cards.forEach((card, index) => {
+                    const initialY = index * 24;
+                    const initialOpacity = 1 - (index * 0.35);
+                    gsap.set(card, {
+                        left: '50%',
+                        top: '50%',
+                        xPercent: -50,
+                        yPercent: -50,
+                        y: initialY,
+                        opacity: initialOpacity,
+                        width: index === 0 ? '100%' : `${100 - (index * 5)}%`,
+                        x: 0,
+                    });
+                });
+            });
 
             const tl = gsap.timeline({
                 scrollTrigger: {
@@ -412,6 +434,7 @@
                     xPercent: -50,
                     yPercent: -50,
                     y: initialY,
+                    x: 0,
                     opacity: initialOpacity,
                 });
             });
@@ -427,6 +450,7 @@
                 tl.to(card, {
                     opacity: 1,
                     y: 0,
+                    x: 0,
                     width: '100%',
                     duration: 3,
                     ease: 'none',
@@ -438,6 +462,7 @@
                     tl.to(card, {
                         opacity: 0,
                         y: -500,
+                        x: 0,
                         duration: 1,
                         ease: 'none',
                     });
@@ -460,6 +485,7 @@
                             opacity: inheritedOpacity,
                             width: targetCardWidth,
                             duration: 1,
+                            x: 0,
                             ease: 'none',
                         }, '<');
                     }
