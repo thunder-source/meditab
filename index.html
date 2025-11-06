@@ -396,10 +396,15 @@
                     trigger: '.cards-container',
                     start: 'center center',
                     end: `+=${window.innerHeight * (cards.length + 1)}`,
-                    scrub: true,
+                    scrub: 0.5,
                     pin: true,
                     markers: true,
-                    snap: 1 / (cards.length - 1),
+                    snap: {
+                        snapTo: 1 / (cards.length - 1),
+                        duration: 0.5,
+                        delay: 0.1,
+                        ease: 'power1.inOut'
+                    },
                     pinSpacing: true,
                     onUpdate: (self) => {
                         // Calculate which card is currently focused based on scroll progress
