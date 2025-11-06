@@ -44,14 +44,11 @@
         }
 
         .section-2 {
-            /* background-color: orange; */
             background: white;
             position: relative;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            /* position: sticky; */
-            /* top: -50px; */
         }
 
         .container {
@@ -64,10 +61,10 @@
 
         .cards-container {
             width: 100%;
-            height: 700px;
-            max-height: 700px;
+            height: 100%;
+            min-height: 500px;
             margin: 0 auto;
-            position: sticky;
+            margin-top: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -76,19 +73,16 @@
         .card {
             position: absolute;
             width: 100%;
-            /* max-width: 1200px; */
-            height: 600px;
+            height: 100%;
             max-height: 600px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
             color: white;
             font-weight: bold;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            /* margin: 20px; */
             background: var(--card-bg-light);
             overflow: hidden;
         }
@@ -152,13 +146,7 @@
             font-weight: 600;
             font-size: 60px;
             line-height: 70px;
-            letter-spacing: 0%;
-            display: block;
-        }
-
-        .heading-dark,
-        .heading-blue {
-            display: block;
+            letter-spacing: 0px;
         }
 
         .heading-dark {
@@ -189,6 +177,11 @@
             width: 90%;
         }
 
+        .section-3 {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .heading {
                 font-size: 36px;
@@ -196,22 +189,26 @@
             }
 
             .card {
-                width: 95%;
-                height: auto;
                 min-height: 60vh;
-                max-height: 500px;
                 margin-top: 0;
-                top: auto;
+            }
+
+            .card-text {
+                flex: 1;
+                justify-content: left;
+                padding: 20px;
             }
 
             .card-content {
                 flex-direction: column;
-                padding: 30px 20px;
+                align-items: flex-start;
                 gap: 30px;
             }
 
             .card-heading {
                 font-size: 1.75rem;
+                margin-bottom: 0px;
+                line-height: normal
             }
 
             .card-description {
@@ -219,7 +216,9 @@
             }
 
             .card-media {
-                height: 300px;
+                flex: 5;
+                height: 100%;
+                width: 100%;
             }
         }
 
@@ -233,7 +232,7 @@
         /* Large screens (1200px and up) */
         @media (min-width: 1200px) {
             .container {
-                max-width: 1200px;
+                max-width: 1400px;
                 padding: 80px 60px;
             }
         }
@@ -265,17 +264,8 @@
         /* Small mobile (up to 480px) */
         @media (max-width: 480px) {
             .container {
-                padding: 30px 15px;
+                max-width: 100%;
             }
-        }
-
-        .section-3 {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: white;
-        }
-
-        .spacer {
-            height: 100vh;
         }
     </style>
 </head>
@@ -287,8 +277,8 @@
 
     <div class="section-2 container">
         <h1 class="heading">
-            <span class="heading-dark">Simplify</span>
-            <span class="heading-blue">Medication Administration</span>
+            <div class="heading-dark">Simplify <span class="heading-blue">Medication</span></div>
+            <div class="heading-blue">Administration</div>
             <span class="heading-dark">With A DosePack</span>
         </h1>
         <div class="cards-container">
@@ -325,7 +315,7 @@
                             prescribed time.</p>
                     </div>
                     <div class="card-media">
-                        <video autoplay loop muted playsinline>
+                        <video loop muted playsinline cover>
                             <source src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
                         </video>
                     </div>
@@ -339,22 +329,41 @@
     </div>
 
     <script>
-
-
         gsap.registerPlugin(ScrollTrigger);
 
         document.addEventListener('DOMContentLoaded', () => {
             const cards = gsap.utils.toArray('.card');
+            const video = document.querySelector('.card-3 video');
 
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: '.section-2',
+                    trigger: '.cards-container',
                     start: 'center center',
                     end: `+=${window.innerHeight * (cards.length + 1)}`,
                     scrub: true,
                     pin: true,
                     markers: true,
                     snap: 1 / (cards.length - 1),
+                    pinSpacing: true,
+                    onUpdate: (self) => {
+                        // Calculate which card is currently focused based on scroll progress
+                        const progress = self.progress;
+                        const totalCards = cards.length;
+                        const progressPerCard = 1 / (totalCards - 1);
+
+                        // Determine the current active card index
+                        const currentCardIndex = Math.min(
+                            Math.floor(progress / progressPerCard),
+                            totalCards - 1
+                        );
+
+                        // Play video when card 3 (index 2) is focused
+                        if (currentCardIndex === 2 && video) {
+                            video.play().catch(err => console.log('Video play failed:', err));
+                        } else if (video) {
+                            video.pause();
+                        }
+                    }
                 }
             });
 
@@ -372,6 +381,11 @@
                     opacity: initialOpacity,
                 });
             });
+
+            // Pause video initially
+            if (video) {
+                video.pause();
+            }
 
             // Animate cards with cascading property inheritance
             cards.forEach((card, index) => {
@@ -397,10 +411,15 @@
                     // At the SAME TIME, animate ALL remaining cards to shift up one position
                     for (let i = index + 1; i < cards.length; i++) {
                         const targetCard = cards[i];
-                        const inheritedY = (i - index - 1) * 24; // New stacked position
+                        const inheritedY = (i - index - 1) * 24;
                         const inheritedOpacity = 1 - ((i - index - 1) * 0.35);
-                        const computedWidth = getComputedStyle(targetCard).width;
-                        const targetCardWidth = i === index + 1 ? '100%' : computedWidth;
+
+                        let targetCardWidth;
+                        if (i === index + 1) {
+                            targetCardWidth = '100%';
+                        } else {
+                            targetCardWidth = getComputedStyle(cards[i - 1]).width;
+                        }
 
                         tl.to(targetCard, {
                             y: inheritedY,
@@ -408,219 +427,11 @@
                             width: targetCardWidth,
                             duration: 1,
                             ease: 'none',
-                        }, '<'); // '<' makes all these happen simultaneously
+                        }, '<');
                     }
                 }
             });
         });
-
-        // gsap.registerPlugin(ScrollTrigger);
-
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     const cards = gsap.utils.toArray('.card');
-
-        //     const tl = gsap.timeline({
-        //         scrollTrigger: {
-        //             trigger: '.section-2',
-        //             start: 'center center',
-        //             end: `+=${window.innerHeight * (cards.length + 1)}`,
-        //             scrub: true,
-        //             pin: true,
-        //             markers: true,
-        //             snap: false,
-        //         }
-        //     });
-
-        //     // Set initial stacked states
-        //     cards.forEach((card, index) => {
-        //         const initialY = index * 24;
-        //         const initialOpacity = 1 - (index * 0.35);
-
-        //         gsap.set(card, {
-        //             left: '50%',
-        //             top: '50%',
-        //             xPercent: -50,
-        //             yPercent: -50,
-        //             y: initialY,
-        //             opacity: initialOpacity,
-        //             width: 'auto',
-        //         });
-        //     });
-
-        //     // Animate cards with property inheritance
-        //     cards.forEach((card, index) => {
-        //         // Phase 1: Current card fades in and expands
-        //         tl.to(card, {
-        //             opacity: 1,
-        //             y: 0,
-        //             width: '100%',
-        //             duration: 3,
-        //             ease: 'none',
-        //         });
-
-        //         // Phase 2: Current card fades out (except last card)
-        //         if (index < cards.length - 1) {
-        //             const nextCard = cards[index + 1];
-
-        //             // Fade out current card
-        //             tl.to(card, {
-        //                 opacity: 0.5,
-        //                 y: -500,
-        //                 duration: 1,
-        //                 ease: 'none',
-        //             });
-
-        //             // At the SAME TIME, next card inherits current card's final properties
-        //             // before it faded out (opacity: 1, y: 0, width: 100%)
-        //             tl.to(nextCard, {
-        //                 opacity: 1,      // Inherit current card's opacity before fadeout
-        //                 y: 0,            // Inherit current card's y position
-        //                 width: '100%',   // Inherit current card's width
-        //                 duration: 1,
-        //                 ease: 'none',
-        //             }, '<');  // '<' starts this at the same time as previous animation
-        //         }
-        //     });
-        // });
-
-        // gsap.registerPlugin(ScrollTrigger);
-
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     const cards = gsap.utils.toArray('.card');
-
-        //     // Create a master timeline
-        //     const tl = gsap.timeline({
-        //         scrollTrigger: {
-        //             trigger: '.section-2',
-        //             start: 'center center',
-        //             end: `+=${window.innerHeight * (cards.length + 1)}`,
-        //             scrub: true,
-        //             pin: true,
-        //             markers: true,
-        //             snap: false,
-        //         }
-        //     });
-        //     console.log(tl);
-
-        //     cards.forEach((card, index) => {
-        //         const initialY = index * 24;
-        //         const initialOpacity = 1 - (index * 0.35);
-        //         console.log(card);
-        //         gsap.set(card, {
-        //             left: '50%',
-        //             top: '50%',
-        //             xPercent: -50,
-        //             yPercent: -50,
-        //             y: initialY,
-        //             opacity: initialOpacity,
-        //         });
-
-        //         // Add fade in
-        //         tl.to(card, {
-        //             opacity: 1,
-        //             y: 0,
-        //             width: '100%',
-        //             duration: 3,
-        //             ease: 'none',
-        //         });
-
-        //         // Add fade out (if not the last card)
-        //         if (index < cards.length - 1) {
-        //             tl.to(card, {
-        //                 opacity: 0.5,
-        //                 y: -500,
-        //                 duration: 1,
-        //                 ease: 'none',
-        //             });
-        //         }
-        //     });
-        // });
-
-        // gsap.registerPlugin(ScrollTrigger);
-
-        // // Wait for DOM to be ready
-        // document.addEventListener('DOMContentLoaded', function () {
-        //     const cards = gsap.utils.toArray('.card');
-
-        //     cards.forEach((card, index) => {
-        //         // Use GSAP to center cards both horizontally and vertically
-        //         // xPercent and yPercent shift by -50% of the element's own dimensions
-        //         // This combined with left/top 50% perfectly centers the element
-        //         // Set initial stacked position with opacity
-        //         const initialY = index * 40; // Stack cards vertically
-        //         // const initialScale = 1 - (index * 0.05);
-        //         const initialOpacity = 1 - (index * 0.35); // Card 1: 1.0, Card 2: 0.65, Card 3: 0.3
-
-        //         gsap.set(card, {
-        //             left: '50%',
-        //             top: '50%',
-        //             xPercent: -50,
-        //             yPercent: -50,
-        //             y: initialY,
-        //             // scale: initialScale,
-        //             opacity: initialOpacity
-        //         });
-
-        //         const gap = window.innerHeight * 0.2; // Gap between transitions (20% of viewport height)
-        //         const fadeInDuration = window.innerHeight * 0.4; // Duration for fade in (40% of viewport)
-        //         const fadeOutDuration = window.innerHeight * 0.4; // Duration for fade out (40% of viewport)
-
-        //         // Calculate scroll positions
-        //         const fadeInStart = index * window.innerHeight;
-        //         const fadeInEnd = fadeInStart + fadeInDuration;
-        //         const fadeOutStart = (index + 1) * window.innerHeight - fadeOutDuration - gap;
-        //         const fadeOutEnd = (index + 1) * window.innerHeight - gap;
-
-        //         // Animation 1: Bring card into focus (full opacity and scale)
-        //         gsap.to(card, {
-        //             scrollTrigger: {
-        //                 trigger: '.section-2',
-        //                 start: `top+=${fadeInStart} top`,
-        //                 end: `top+=${fadeInEnd} top`,
-        //                 scrub: true,
-        //                 pin: false,
-        //             },
-        //             scale: 1,
-        //             opacity: 1,
-        //             y: 0,
-        //             ease: 'none',
-        //             transformOrigin: 'center center'
-        //         });
-
-        //         // Animation 2: Fade out before next card comes into focus (only for cards that have a next card)
-        //         if (index < cards.length - 1) {
-        //             gsap.to(card, {
-        //                 scrollTrigger: {
-        //                     trigger: '.section-2',
-        //                     start: `top+=${fadeOutStart} top`,
-        //                     end: `top+=${fadeOutEnd} top`,
-        //                     scrub: true,
-        //                     pin: false,
-        //                 },
-        //                 scale: 0.9,
-        //                 opacity: 0,
-        //                 y: -100,
-        //                 ease: 'none',
-        //                 transformOrigin: 'center center'
-        //             });
-        //         }
-        //     });
-
-        //     // Pin the cards container during scroll
-        //     ScrollTrigger.create({
-        //         trigger: '.section-2',
-        //         start: 'center center',
-        //         end: `+=${window.innerHeight * 2}`,
-        //         pin: true,
-        //         pinSpacing: true,
-        //         scrub: 1,
-        //         snap: 1 / (cards.length - 1),
-        //         markers: true
-        //     });
-
-        //     // Refresh ScrollTrigger to ensure proper calculations
-        //     ScrollTrigger.refresh();
-        // });
     </script>
 </body>
 
