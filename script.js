@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoSource = document.querySelector('#video-source');
     const isMobile = window.innerWidth <= 768;
 
+    // Get accurate viewport height for mobile (accounts for browser UI)
+    function getViewportHeight() {
+        if (isMobile && window.visualViewport) {
+            return window.visualViewport.height;
+        }
+        return window.innerHeight;
+    }
+
+    let viewportHeight = getViewportHeight();
+
     // Enable GPU acceleration for all cards
     cards.forEach(card => {
         gsap.set(card, {
@@ -40,39 +50,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial video source setup
     updateVideoSource();
 
+    // Handle viewport changes (mobile browser UI show/hide)
+    let isScrolling = false;
+    let viewportChangeTimeout;
+    let scrollTriggerInstance = null;
+    let lastScrollDirection = null;
+    let lastProgress = 0;
+
+    function handleViewportChange() {
+        // Debounce viewport changes to avoid conflicts during scroll
+        clearTimeout(viewportChangeTimeout);
+        viewportChangeTimeout = setTimeout(() => {
+            if (!isScrolling && scrollTriggerInstance) {
+                const newViewportHeight = getViewportHeight();
+                if (Math.abs(newViewportHeight - viewportHeight) > 10) {
+                    viewportHeight = newViewportHeight;
+                    // Only refresh if we're not in the middle of scrolling
+                    const currentProgress = scrollTriggerInstance.progress;
+                    if (currentProgress === 0 || currentProgress === 1) {
+                        ScrollTrigger.refresh();
+                    }
+                }
+            }
+        }, 500);
+    }
+
+    // Listen for visual viewport changes (mobile browsers)
+    // Only listen to resize, not scroll (scroll events cause conflicts)
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+
     // Debounced resize handler for better performance
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            updateVideoSource();
-            ScrollTrigger.refresh();
+            // Only refresh if not actively scrolling
+            if (!isScrolling) {
+                viewportHeight = getViewportHeight();
+                updateVideoSource();
 
-            // Reset card positions with width
-            cards.forEach((card, index) => {
-                const initialY = index * 24;
-                const initialOpacity = 1 - (index * 0.35);
-                const initialZIndex = cards.length - index;
+                // Only reset card positions if ScrollTrigger is at the start
+                if (scrollTriggerInstance && scrollTriggerInstance.progress === 0) {
+                    cards.forEach((card, index) => {
+                        const initialY = index * 24;
+                        const initialOpacity = 1 - (index * 0.35);
+                        const initialZIndex = cards.length - index;
 
-                gsap.set(card, {
-                    left: '50%',
-                    top: '50%',
-                    xPercent: -50,
-                    yPercent: -50,
-                    y: initialY,
-                    opacity: initialOpacity,
-                    width: index === 0 ? '100%' : `${100 - (index * 5)}%`,
-                    zIndex: initialZIndex,
-                    x: 0,
-                    force3D: true
-                });
-            });
-        }, 150);
+                        gsap.set(card, {
+                            left: '50%',
+                            top: '50%',
+                            xPercent: -50,
+                            yPercent: -50,
+                            y: initialY,
+                            opacity: initialOpacity,
+                            width: index === 0 ? '100%' : `${100 - (index * 5)}%`,
+                            zIndex: initialZIndex,
+                            x: 0,
+                            force3D: true
+                        });
+                    });
+                }
+
+                ScrollTrigger.refresh();
+            }
+        }, 300);
     });
 
     // Mobile-optimized settings
     const scrubValue = isMobile ? 1 : 0.5;
-    const snapSettings = isMobile ? false : {
+    // Disable snap on mobile to prevent jumping back to base state
+    const snapSettings = isMobile ? null : {
         snapTo: 1 / (cards.length - 1),
         duration: 0.5,
         delay: 0.1,
@@ -83,16 +132,38 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollTrigger: {
             trigger: '.cards-container',
             start: isMobile ? 'top 100px' : 'top 50px',
-            end: `+=${window.innerHeight * (cards.length + 1)}`,
+            end: () => `+=${viewportHeight * (cards.length + 1)}`,
             scrub: scrubValue,
             pin: true,
             markers: false,
             snap: snapSettings,
             anticipatePin: 1,
             pinSpacing: true,
-            invalidateOnRefresh: true,
+            invalidateOnRefresh: false, // Prevent timeline from resetting on refresh
             refreshPriority: -1,
+            onRefresh: () => {
+                // Update viewport height on refresh
+                viewportHeight = getViewportHeight();
+            },
             onUpdate: (self) => {
+                // Store the instance
+                if (!scrollTriggerInstance) {
+                    scrollTriggerInstance = self;
+                }
+
+                // Track scroll direction
+                const currentProgress = self.progress;
+                if (currentProgress < lastProgress) {
+                    lastScrollDirection = 'up';
+                } else if (currentProgress > lastProgress) {
+                    lastScrollDirection = 'down';
+                }
+                lastProgress = currentProgress;
+
+                // Mark that we're actively scrolling
+                isScrolling = true;
+                clearTimeout(viewportChangeTimeout);
+
                 // Use requestAnimationFrame for smoother updates
                 requestAnimationFrame(() => {
                     const progress = self.progress;
@@ -110,6 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         video.pause();
                     }
                 });
+
+                // Reset scrolling flag after a delay
+                viewportChangeTimeout = setTimeout(() => {
+                    isScrolling = false;
+                }, 200);
+            },
+            onLeave: () => {
+                isScrolling = false;
+            },
+            onEnterBack: () => {
+                isScrolling = false;
             }
         }
     });
