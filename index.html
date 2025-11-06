@@ -49,6 +49,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            padding-top: 0 !important;
         }
 
         .container {
@@ -66,8 +67,19 @@
             margin: 0 auto;
             margin-top: 100px;
             display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cards-wrapper {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .card {
@@ -131,8 +143,8 @@
             flex: 0 0 58%;
             height: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: unset;
+            justify-content: flex-end;
             overflow: hidden;
         }
 
@@ -236,7 +248,7 @@
         @media (min-width: 1200px) {
             .container {
                 max-width: 1400px;
-                padding: 80px 60px;
+                padding: 100px 60px;
             }
         }
 
@@ -279,58 +291,63 @@
     </div>
 
     <div class="section-2 container">
-        <h1 class="heading">
-            <div class="heading-dark">Simplify <span class="heading-blue">Medication</span></div>
-            <div class="heading-blue">Administration</div>
-            <span class="heading-dark">With A DosePack</span>
-        </h1>
         <div class="cards-container">
-            <div class="card card-1">
-                <div class="card-content">
-                    <div class="card-text">
-                        <h2 class="card-heading">Scannable QR Codes On Every Dose Cup</h2>
-                        <p class="card-description">Verify doses and automate eMAR simply by scanning the QR code during
-                            drug administration.</p>
+            <h1 class="heading">
+                <div class="heading-dark">Simplify <span class="heading-blue">Medication</span></div>
+                <div class="heading-blue">Administration</div>
+                <span class="heading-dark">With A DosePack</span>
+            </h1>
+            <div class="cards-wrapper">
+
+                <div class="card card-1">
+                    <div class="card-content">
+                        <div class="card-text">
+                            <h2 class="card-heading">Scannable QR Codes On Every Dose Cup</h2>
+                            <p class="card-description">Verify doses and automate eMAR simply by scanning the QR code
+                                during
+                                drug administration.</p>
+                        </div>
+                        <div class="card-media">
+                            <picture>
+                                <source media="(max-width: 768px)" srcset="assets/Mobile/USP-scannable-QR-code.png">
+                                <img src="assets/Desktop/USP-scannable-QR-code.png" alt="Scannable QR Codes">
+                            </picture>
+                        </div>
                     </div>
-                    <div class="card-media">
-                        <picture>
-                            <source media="(max-width: 768px)" srcset="assets/Mobile/USP-scannable-QR-code.png">
-                            <img src="assets/Desktop/USP-scannable-QR-code.png" alt="Scannable QR Codes">
-                        </picture>
+                </div>
+                <div class="card card-2">
+                    <div class="card-content">
+                        <div class="card-text">
+                            <h2 class="card-heading">Choose from 26+ Customizable Configurations</h2>
+                            <p class="card-description">Tailor-made compliance packs according to weekly, biweekly, or
+                                monthly dose cycles.</p>
+                        </div>
+                        <div class="card-media">
+                            <picture>
+                                <source media="(max-width: 768px)"
+                                    srcset="assets/Mobile/USP-Section-26+customizable-configurations.png">
+                                <img src="assets/Desktop/USP-Section-26+customizable-configurations.png"
+                                    alt="26+ Customizable Configurations">
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-3">
+                    <div class="card-content">
+                        <div class="card-text">
+                            <h2 class="card-heading">Tearable Dose Cups For Convenience</h2>
+                            <p class="card-description">Travel-friendly tearaway dose cups for medication intake at the
+                                prescribed time.</p>
+                        </div>
+                        <div class="card-media">
+                            <video loop muted playsinline>
+                                <source id="video-source" src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
+                            </video>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card card-2">
-                <div class="card-content">
-                    <div class="card-text">
-                        <h2 class="card-heading">Choose from 26+ Customizable Configurations</h2>
-                        <p class="card-description">Tailor-made compliance packs according to weekly, biweekly, or
-                            monthly dose cycles.</p>
-                    </div>
-                    <div class="card-media">
-                        <picture>
-                            <source media="(max-width: 768px)"
-                                srcset="assets/Mobile/USP-Section-26+customizable-configurations.png">
-                            <img src="assets/Desktop/USP-Section-26+customizable-configurations.png"
-                                alt="26+ Customizable Configurations">
-                        </picture>
-                    </div>
-                </div>
-            </div>
-            <div class="card card-3">
-                <div class="card-content">
-                    <div class="card-text">
-                        <h2 class="card-heading">Tearable Dose Cups For Convenience</h2>
-                        <p class="card-description">Travel-friendly tearaway dose cups for medication intake at the
-                            prescribed time.</p>
-                    </div>
-                    <div class="card-media">
-                        <video loop muted playsinline>
-                            <source id="video-source" src="assets/Desktop/USP-tearable-pkg.mp4" type="video/mp4">
-                        </video>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 
@@ -394,7 +411,7 @@
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: '.cards-container',
-                    start: 'center center',
+                    start: 'top top',
                     end: `+=${window.innerHeight * (cards.length + 1)}`,
                     scrub: 0.5,
                     pin: true,
@@ -405,6 +422,7 @@
                         delay: 0.1,
                         ease: 'power1.inOut'
                     },
+                    anticipatePin: 1,
                     pinSpacing: true,
                     onUpdate: (self) => {
                         // Calculate which card is currently focused based on scroll progress
